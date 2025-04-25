@@ -5,10 +5,11 @@ FROM ubuntu:24.04
 # the docker container.
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-# Install poetry and any other dependency that your worker needs.
+# Install poetry
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-poetry \
-    # Add your dependencies here
+    curl \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure poetry
@@ -17,18 +18,8 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_CREATE=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
-# Configure debugging
-ARG OPENRELIK_PYDEBUG
-ENV OPENRELIK_PYDEBUG ${OPENRELIK_PYDEBUG:-0}
-ARG OPENRELIK_PYDEBUG_PORT
-ENV OPENRELIK_PYDEBUG_PORT ${OPENRELIK_PYDEBUG_PORT:-5678}
-
 # Set working directory
 WORKDIR /openrelik
-
-# Copy poetry toml and install dependencies
-COPY ./pyproject.toml ./poetry.lock ./
-RUN poetry install --no-interaction --no-ansi
 
 # Copy files needed to build
 COPY . ./
@@ -37,5 +28,23 @@ COPY . ./
 RUN poetry install && rm -rf $POETRY_CACHE_DIR
 ENV VIRTUAL_ENV=/app/.venv PATH="/openrelik/.venv/bin:$PATH"
 
+# ----------------------------------------------------------------------
+# Install Capa
+# ----------------------------------------------------------------------
+# Define a build argument for the Capa version (with a default)
+ARG CAPA_VERSION=9.1.0
+ENV CAPA_ZIP="capa-v${CAPA_VERSION}-linux.zip"
+
+# Download the specified Capa release using curl
+RUN curl -L -o ${CAPA_ZIP} https://github.com/mandiant/capa/releases/download/v${CAPA_VERSION}/${CAPA_ZIP}
+
+# Unzip and clean up
+RUN unzip ${CAPA_ZIP} -d /usr/local/bin && rm ${CAPA_ZIP}
+
+# Make Capa executable
+RUN chmod 755 /usr/local/bin/capa
+
+# ----------------------------------------------------------------------
+
 # Default command if not run from docker-compose (and command being overidden)
-CMD ["celery", "--app=src.tasks", "worker", "--task-events", "--concurrency=1", "--loglevel=INFO"]
+CMD ["celery", "--app=openrelik_worker_capa.tasks", "worker", "--task-events", "--concurrency=1", "--loglevel=INFO"]
