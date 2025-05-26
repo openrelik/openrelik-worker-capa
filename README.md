@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/github/openrelik/openrelik-worker-capa/graph/badge.svg?token=mcoWTDgnQz)](https://codecov.io/github/openrelik/openrelik-worker-capa)
+
 # Openrelik worker openrelik-worker-capa
 
 ## Description
