@@ -46,5 +46,5 @@ RUN chmod 755 /usr/local/bin/capa
 
 # ----------------------------------------------------------------------
 
-# Default command if not run from docker-compose (and command being overidden)
+# Default command if not run from docker-compose (and command being overridden)
 CMD ["celery", "--app=openrelik_worker_capa.tasks", "worker", "--task-events", "--concurrency=1", "--loglevel=INFO"]
