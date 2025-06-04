@@ -15,16 +15,16 @@ Capa is an open-source tool developed by Mandiant (formerly FireEye) that detect
 To deploy this worker, add the following service configuration to your OpenRelik `docker-compose.yml` file:
 
 ```yaml
-openrelik-worker-openrelik-worker-capa:
-    container_name: openrelik-worker-openrelik-worker-capa
-    image: ghcr.io/openrelik/openrelik-worker-openrelik-worker-capa:latest
+openrelik-worker-capa:
+    container_name: openrelik-worker-capa
+    image: ghcr.io/openrelik/openrelik-worker-capa:latest
     restart: always
     environment:
       - REDIS_URL=redis://openrelik-redis:6379
       - OPENRELIK_PYDEBUG=0 # Set to 1 for debugpy remote debugging
     volumes:
       - ./data:/usr/share/openrelik/data
-    command: "celery --app=src.app worker --task-events --concurrency=4 --loglevel=INFO -Q openrelik-worker-openrelik-worker-capa"
+    command: "celery --app=src.app worker --task-events --concurrency=4 --loglevel=INFO -Q openrelik-worker-capa"
 ```
 
 ## Test
