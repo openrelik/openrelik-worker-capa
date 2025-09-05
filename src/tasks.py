@@ -96,9 +96,6 @@ def capa(
             process.wait()
         output_files.append(detailed_output_file.to_dict())
 
-    if not output_files:
-        raise RuntimeError("Capa did not create any output files.")
-
     return create_task_result(
         output_files=output_files,
         workflow_id=workflow_id,
